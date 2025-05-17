@@ -1,6 +1,10 @@
-from flask import Flask, render_template, request, send_file
+from flask import Flask, render_template, request, send_file, flash, redirect, url_for
 import os
 import tempfile
+import requests
+from flask_login import UserMixin, login_user, LoginManager, login_required, logout_user, current_user
+from flask_bcrypt import Bcrypt
+from flask_sqlalchemy import SQLAlchemy
 from image_anonymizer import anonymize_image
 from text_anonymizer import anonymize_text
 from pdf_anoymizer import anonymize_pdf
@@ -8,9 +12,18 @@ from docx_anonymizer import anonymize_docx
 from db import DatabaseAnonymizer
 
 app = Flask(__name__)
+app.config['SECRET_KEY'] = 'your-secret-key-here'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+db = SQLAlchemy(app)
+bcrypt = Bcrypt(app)
+login_manager = LoginManager()
+login_manager.init_app(app)
+login_manager.login_view = 'login'
 
 # Temporary directory to save files
-TEMP_DIR = '/tmp/anonymizer_temp/'
+TEMP_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'temp')
 RECAPTCHA_SECRET_KEY = '6LeUKD4rAAAAAHzpW94FZS8JAZ59ls9OYa7pU7nC'
 
 def verify_recaptcha(response_token):
@@ -30,9 +43,28 @@ class User(db.Model, UserMixin):
     email = db.Column(db.String(150), nullable=False, unique=True)
     password = db.Column(db.String(150), nullable=False)
 
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.get(int(user_id))
+
 @app.route('/')
 def index():
     return render_template('index.html')
+
+@app.route('/logout')
+@login_required
+def logout():
+    logout_user()
+    flash('Вы успешно вышли из системы', 'success')
+    return redirect(url_for('index'))
+
+@app.route('/about')
+def about():
+    return render_template('about.html')
+
+@app.route('/functionality')
+def functionality():
+    return render_template('functionality.html')
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
@@ -63,7 +95,7 @@ def register():
 
     return render_template('register.html')
 
-app.route('/login', methods=['GET', 'POST'])
+@app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
         username = request.form['username']
@@ -87,12 +119,14 @@ def login():
     return render_template('login.html')
 
 @app.route('/anonymize_text', methods=['POST'])
+@login_required
 def anonymize_text_route():
     text = request.form['text']
     anonymized_text = anonymize_text(text)
     return render_template('result.html', result=anonymized_text, type='text')
 
 @app.route('/anonymize_image', methods=['POST'])
+@login_required
 def anonymize_image_route():
     if 'image' not in request.files:
         return 'No image uploaded', 400
@@ -104,6 +138,7 @@ def anonymize_image_route():
     return send_file(output_path, as_attachment=True)
 
 @app.route('/anonymize_pdf', methods=['POST'])
+@login_required
 def anonymize_pdf_route():
     if 'pdf' not in request.files:
         return 'No PDF uploaded', 400
@@ -115,6 +150,7 @@ def anonymize_pdf_route():
     return send_file(output_path, as_attachment=True)
 
 @app.route('/anonymize_docx', methods=['POST'])
+@login_required
 def anonymize_docx_route():
     if 'docx' not in request.files:
         return 'No DOCX uploaded', 400
@@ -126,6 +162,7 @@ def anonymize_docx_route():
     return send_file(output_path, as_attachment=True)
 
 @app.route('/anonymize_database', methods=['POST'])
+@login_required
 def anonymize_database_route():
     table_name = request.form['table_name']
     columns_to_anonymize = request.form['columns_to_anonymize'].split()
