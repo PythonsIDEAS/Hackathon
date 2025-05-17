@@ -1,0 +1,6 @@
+spacy
+presidio-analyzer
+presidio-anonymizer
+easyocr
+opencv-python
+pillow
