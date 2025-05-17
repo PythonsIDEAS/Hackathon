@@ -121,59 +121,123 @@ def login():
 @app.route('/anonymize_text', methods=['POST'])
 @login_required
 def anonymize_text_route():
-    text = request.form['text']
-    anonymized_text = anonymize_text(text)
-    return render_template('result.html', result=anonymized_text, type='text')
+    text = request.form.get('text', '').strip()
+    if not text:
+        flash('Текст для анонимизации не может быть пустым', 'error')
+        return redirect(url_for('index'))
+    
+    try:
+        anonymized_text = anonymize_text(text)
+        return render_template('result.html', result=anonymized_text, type='text')
+    except Exception as e:
+        flash(f'Ошибка при анонимизации текста: {str(e)}', 'error')
+        return redirect(url_for('index'))
+
 
 @app.route('/anonymize_image', methods=['POST'])
 @login_required
 def anonymize_image_route():
     if 'image' not in request.files:
-        return 'No image uploaded', 400
+        flash('Файл не был загружен', 'error')
+        return redirect(url_for('index'))
+    
     image = request.files['image']
-    temp_path = os.path.join(TEMP_DIR, image.filename)
-    image.save(temp_path)
-    output_path = os.path.join(TEMP_DIR, 'anonymized_' + image.filename)
-    anonymize_image(temp_path, output_path)
-    return send_file(output_path, as_attachment=True)
+    if image.filename == '':
+        flash('Файл не выбран', 'error')
+        return redirect(url_for('index'))
+    
+    if not image.filename.lower().endswith(('.png', '.jpg', '.jpeg', '.gif', '.bmp')):
+        flash('Недопустимый формат файла. Разрешены только изображения', 'error')
+        return redirect(url_for('index'))
+    
+    try:
+        temp_path = os.path.join(TEMP_DIR, image.filename)
+        image.save(temp_path)
+        output_path = os.path.join(TEMP_DIR, 'anonymized_' + image.filename)
+        anonymize_image(temp_path, output_path)
+        return send_file(output_path, as_attachment=True)
+    except Exception as e:
+        flash(f'Ошибка при обработке изображения: {str(e)}', 'error')
+        return redirect(url_for('index'))
 
 @app.route('/anonymize_pdf', methods=['POST'])
 @login_required
 def anonymize_pdf_route():
     if 'pdf' not in request.files:
-        return 'No PDF uploaded', 400
+        flash('Файл не был загружен', 'error')
+        return redirect(url_for('index'))
+    
     pdf = request.files['pdf']
-    temp_path = os.path.join(TEMP_DIR, pdf.filename)
-    pdf.save(temp_path)
-    output_path = os.path.join(TEMP_DIR, 'anonymized_' + pdf.filename.replace('.pdf', '.txt'))
-    anonymize_pdf(temp_path, output_path)
-    return send_file(output_path, as_attachment=True)
+    if pdf.filename == '':
+        flash('Файл не выбран', 'error')
+        return redirect(url_for('index'))
+    
+    if not pdf.filename.lower().endswith('.pdf'):
+        flash('Недопустимый формат файла. Разрешены только PDF файлы', 'error')
+        return redirect(url_for('index'))
+    
+    try:
+        temp_path = os.path.join(TEMP_DIR, pdf.filename)
+        pdf.save(temp_path)
+        output_path = os.path.join(TEMP_DIR, 'anonymized_' + pdf.filename.replace('.pdf', '.txt'))
+        anonymize_pdf(temp_path, output_path)
+        return send_file(output_path, as_attachment=True)
+    except Exception as e:
+        flash(f'Ошибка при обработке PDF: {str(e)}', 'error')
+        return redirect(url_for('index'))
 
 @app.route('/anonymize_docx', methods=['POST'])
 @login_required
 def anonymize_docx_route():
     if 'docx' not in request.files:
-        return 'No DOCX uploaded', 400
+        flash('Файл не был загружен', 'error')
+        return redirect(url_for('index'))
+    
     docx = request.files['docx']
-    temp_path = os.path.join(TEMP_DIR, docx.filename)
-    docx.save(temp_path)
-    output_path = os.path.join(TEMP_DIR, 'anonymized_' + docx.filename)
-    anonymize_docx(temp_path, output_path)
-    return send_file(output_path, as_attachment=True)
+    if docx.filename == '':
+        flash('Файл не выбран', 'error')
+        return redirect(url_for('index'))
+    
+    if not docx.filename.lower().endswith('.docx'):
+        flash('Недопустимый формат файла. Разрешены только DOCX файлы', 'error')
+        return redirect(url_for('index'))
+    
+    try:
+        temp_path = os.path.join(TEMP_DIR, docx.filename)
+        docx.save(temp_path)
+        output_path = os.path.join(TEMP_DIR, 'anonymized_' + docx.filename)
+        anonymize_docx(temp_path, output_path)
+        return send_file(output_path, as_attachment=True)
+    except Exception as e:
+        flash(f'Ошибка при обработке DOCX: {str(e)}', 'error')
+        return redirect(url_for('index'))
 
 @app.route('/anonymize_database', methods=['POST'])
 @login_required
 def anonymize_database_route():
-    table_name = request.form['table_name']
-    columns_to_anonymize = request.form['columns_to_anonymize'].split()
-    db_type = request.form['db_type']
+    table_name = request.form.get('table_name', '').strip()
+    columns_to_anonymize = request.form.get('columns_to_anonymize', '').strip()
+    db_type = request.form.get('db_type')
+    
+    if not table_name:
+        flash('Название таблицы не может быть пустым', 'error')
+        return redirect(url_for('index'))
+    
+    if not columns_to_anonymize:
+        flash('Необходимо указать столбцы для анонимизации', 'error')
+        return redirect(url_for('index'))
+    
+    if not db_type:
+        flash('Необходимо выбрать тип базы данных', 'error')
+        return redirect(url_for('index'))
     
     try:
-        anonymizer = DatabaseAnonymizer(table_name, columns_to_anonymize)
+        anonymizer = DatabaseAnonymizer(table_name, columns_to_anonymize.split())
         anonymized_data = anonymizer.anonymize_table()
         return render_template('result.html', result=anonymized_data, type='database')
     except Exception as e:
-        return str(e), 400
+        flash(f'Ошибка при анонимизации базы данных: {str(e)}', 'error')
+        return redirect(url_for('index'))
 
 
 if __name__ == '__main__':
