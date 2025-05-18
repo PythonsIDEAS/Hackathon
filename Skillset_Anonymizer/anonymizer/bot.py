@@ -179,7 +179,7 @@ def format_anonymized_data(data, max_rows=5):
         formatted += f"\n... and {len(data) - max_rows} more rows"
     
     # Use monospace formatting for Telegram
-    return f"⁠ \n{formatted}\n ⁠"
+    return f"`\n{formatted}\n`"
 
 def generate_anonymization_summary(table_name, columns, num_records):
     summary = f"Сводка анонимизации:\n"
@@ -258,7 +258,7 @@ def format_anonymized_data(data, max_rows=5):
         formatted += f"\n... and {len(data) - max_rows} more rows"
     
     # Use monospace formatting for Telegram
-    return f"⁠ \n{formatted}\n ⁠"
+    return f"`\n{formatted}\n`"
 
 def generate_anonymization_summary(table_name, columns, num_records):
     summary = f"Сводка анонимизации:\n"
@@ -285,32 +285,47 @@ def handle_text(message):
 def handle_image(message):
     logger.info(f"Processing image anonymization request from user {message.from_user.id}")
     try:
-        # Get the file ID of the image
+        # Get the file ID of the image (highest quality version)
         file_info = bot.get_file(message.photo[-1].file_id)
         logger.info(f"Retrieved image file info for user {message.from_user.id}")
         
         # Download the image file from Telegram servers
         downloaded_file = bot.download_file(file_info.file_path)
         
-        # Save the image to a temporary location
-        with tempfile.NamedTemporaryFile(delete=False, dir=TEMP_DIR, suffix='.jpg') as temp_file:
-            temp_file.write(downloaded_file)
-            temp_image_path = temp_file.name  # Get the path to the temporary file
-
-        # Log saved image path
-        print(f"Image saved as {temp_image_path}")
-
-        # Anonymize the image (calling external anonymization function)
-        output_image_path = os.path.join(TEMP_DIR, 'anonymized_image.jpg')
-        anonymize_image(temp_image_path, output_image_path)
-
-        # Send the anonymized image back to the user
-        with open(output_image_path, 'rb') as output_file:
-            bot.send_photo(message.chat.id, output_file)
-
+        # Create a unique filename for this image
+        temp_image_path = os.path.join(TEMP_DIR, f'temp_image_{message.from_user.id}_{datetime.now().strftime("%Y%m%d_%H%M%S")}.jpg')
+        output_image_path = os.path.join(TEMP_DIR, f'anonymized_image_{message.from_user.id}_{datetime.now().strftime("%Y%m%d_%H%M%S")}.jpg')
+        
+        try:
+            # Save the image to a temporary location
+            with open(temp_image_path, 'wb') as temp_file:
+                temp_file.write(downloaded_file)
+            
+            logger.info(f"Image saved as {temp_image_path}")
+            
+            # Anonymize the image using the image_anonymizer module
+            anonymize_image(temp_image_path, output_image_path)
+            logger.info(f"Image anonymized and saved as {output_image_path}")
+            
+            # Send the anonymized image back to the user
+            with open(output_image_path, 'rb') as output_file:
+                bot.send_photo(message.chat.id, output_file, caption="Изображение успешно анонимизировано")
+                logger.info(f"Anonymized image sent to user {message.from_user.id}")
+            
+        finally:
+            # Clean up temporary files
+            for file_path in [temp_image_path, output_image_path]:
+                try:
+                    if os.path.exists(file_path):
+                        os.remove(file_path)
+                        logger.info(f"Cleaned up temporary file: {file_path}")
+                except Exception as cleanup_error:
+                    logger.error(f"Error cleaning up file {file_path}: {cleanup_error}")
+    
     except Exception as e:
-        logger.error(f"Error processing image for user {message.from_user.id}: {str(e)}")
-        bot.reply_to(message, "Sorry, something went wrong while processing your image. Please try again.")
+        error_message = f"Error processing image for user {message.from_user.id}: {str(e)}"
+        logger.error(error_message)
+        bot.reply_to(message, "Извините, произошла ошибка при обработке изображения. Пожалуйста, попробуйте еще раз.")
 
 # Function to handle receiving PDF files
 @bot.message_handler(content_types=['document'])
