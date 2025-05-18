@@ -3,38 +3,74 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Anonymizator CyberForuta3</title>
+    <title>Skillset Anonymizer</title>
     <link href="/static/css/style.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
     <div class="container mx-auto px-4">
         <div class="app-header">
-            <div class="flex justify-between items-center">
-                <h1 class="text-4xl font-bold encrypted-text" data-text="Anonymizator CyberForuta3">Anonymizator CyberForuta3</h1>
-                <div class="flex items-center space-x-4">
-                    <a href="/" class="nav-link">Главная</a>
-                    <a href="/about" class="nav-link">О нас</a>
-                    <a href="/functionality" class="nav-link">Функционал</a>
-                    <a href="/login" class="nav-link">Вход</a>
-                    <button class="icon-button"><i class="fas fa-cog"></i></button>
-                    <button class="icon-button"><i class="fas fa-moon"></i></button>
-                </div>
+            <div class="flex justify-between items-center py-6">
+                <h1 class="text-4xl font-bold text-blue-600 encrypted-text" data-text="Skillset Anonymizer">Skillset Anonymizer</h1>
+                <nav class="flex items-center space-x-6">
+                    <a href="/" class="nav-link text-blue-600">Home</a>
+                    <a href="/about" class="nav-link hover:text-blue-600 transition-colors">About</a>
+                    <a href="/contact" class="nav-link hover:text-blue-600 transition-colors">Contact</a>
+                    <a href="/login" class="btn-primary bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg transition-colors">Login</a>
+                    <button class="dark-mode-toggle" id="darkModeToggle">
+                        <i class="fas fa-moon"></i>
+                    </button>
+                </nav>
             </div>
         </div>
 
-        <div class="main-content text-center py-20">
-            <h2 class="text-4xl mb-4">Anonymize information</h2>
-            <h3 class="text-2xl mb-8">quickly and safely with us.</h3>
-            <p class="text-gray-400 mb-8">У нас один день опыта анонимизирования данных. Доверьтесь нам и вы не пожалеете</p>
-            <div class="flex justify-center space-x-4">
-                <button class="btn-primary">Contact Me</button>
-                <button class="btn-primary">Let's Talk!</button>
+        <div class="main-content py-12">
+            <div class="text-center mb-12">
+                <h2 class="text-4xl mb-4">Anonymize Your Data</h2>
+                <p class="text-gray-600 mb-8">Secure and efficient data anonymization solutions for your needs</p>
             </div>
-            <div class="mt-8 flex justify-center space-x-4">
-                <button class="icon-button"><i class="fas fa-cog"></i></button>
-                <button class="icon-button"><i class="fas fa-moon"></i></button>
-                <button class="icon-button"><i class="fas fa-volume-up"></i></button>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <!-- Text Anonymizer Card -->
+                <div class="feature-card">
+                    <div class="card-icon mb-4">
+                        <i class="fas fa-file-alt text-4xl text-purple-600"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-3">Text Anonymizer</h3>
+                    <p class="text-gray-600 mb-4">Anonymize sensitive information in text documents with advanced pattern recognition.</p>
+                    <a href="/text_anonymizer" class="btn-primary">Start Now</a>
+                </div>
+
+                <!-- Image Anonymizer Card -->
+                <div class="feature-card">
+                    <div class="card-icon mb-4">
+                        <i class="fas fa-image text-4xl text-purple-600"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-3">Image Anonymizer</h3>
+                    <p class="text-gray-600 mb-4">Detect and blur sensitive information in images using AI-powered recognition.</p>
+                    <a href="/image_anonymizer" class="btn-primary">Start Now</a>
+                </div>
+
+                <!-- PDF Anonymizer Card -->
+                <div class="feature-card">
+                    <div class="card-icon mb-4">
+                        <i class="fas fa-file-pdf text-4xl text-purple-600"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-3">PDF Anonymizer</h3>
+                    <p class="text-gray-600 mb-4">Securely anonymize sensitive data within PDF documents while maintaining format.</p>
+                    <a href="/pdf_anonymizer" class="btn-primary">Start Now</a>
+                </div>
+
+                <!-- DOCX Anonymizer Card -->
+                <div class="feature-card">
+                    <div class="card-icon mb-4">
+                        <i class="fas fa-file-word text-4xl text-purple-600"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-3">DOCX Anonymizer</h3>
+                    <p class="text-gray-600 mb-4">Process Word documents to remove or mask sensitive information automatically.</p>
+                    <a href="/docx_anonymizer" class="btn-primary">Start Now</a>
+                </div>
             </div>
         </div>
     </div>

@@ -6,8 +6,10 @@ from image_anonymizer import anonymize_image
 from text_anonymizer import anonymize_text
 from pdf_anoymizer import anonymize_pdf
 from docx_anonymizer import anonymize_docx
+from data_anonymizer import DataAnonymizer
 import tempfile
 import csv
+import json
 from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
 
 # Configure logging
@@ -42,6 +44,12 @@ logger.addHandler(console_handler)
 API_TOKEN = '8054128372:AAGWna1SQ7jmZXARi3prt0ytqi5qsEBH2Tw'
 bot = telebot.TeleBot(API_TOKEN)
 
+# Инициализация анонимизатора и параметров базы данных
+anonymizer = DataAnonymizer()
+DB_PARAMS = {
+    'database': 'employees.db'
+}
+
 # Temporary directory to save images (updated to use /tmp)
 TEMP_DIR = '/tmp/anonymizer_temp/'
 
@@ -50,8 +58,57 @@ if not os.path.exists(TEMP_DIR):
     os.makedirs(TEMP_DIR)
 
 # Function to handle start command and show anonymization options
-@bot.message_handler(commands=['start'])
-def send_welcome(message):
+@bot.message_handler(commands=['start', 'help', 'mask'])
+def handle_commands(message):
+    if message.text == '/mask':
+        try:
+            # Подключаемся к базе данных
+            if not anonymizer.connect_to_database('sqlite', **DB_PARAMS):
+                bot.reply_to(message, 'Ошибка подключения к базе данных')
+                return
+
+            # Читаем данные из базы
+            data = anonymizer.read_from_database('employees')
+            if not data:
+                bot.reply_to(message, 'Данные в базе не найдены')
+                return
+
+            # Маскируем данные
+            masked_data = anonymizer.mask_data(data)
+
+            # Сохраняем результат в JSON
+            output_file = os.path.join(TEMP_DIR, 'masked_data.json')
+            with open(output_file, 'w', encoding='utf-8') as f:
+                json.dump(masked_data, f, ensure_ascii=False, indent=2)
+
+            # Отправляем файл пользователю
+            with open(output_file, 'rb') as f:
+                bot.send_document(message.chat.id, f, caption='Замаскированные данные из базы')
+
+            # Удаляем временный файл
+            os.remove(output_file)
+
+        except Exception as e:
+            bot.reply_to(message, f'Произошла ошибка: {str(e)}')
+        finally:
+            anonymizer.close_connection()
+        return
+    elif message.text == '/help':
+        help_text = '''
+        Доступные команды:
+        /start - Начать работу с ботом
+        /help - Показать это сообщение
+        /mask - Получить замаскированные данные из базы
+        
+        Поддерживаемые форматы файлов:
+        - Text (txt, rtf)
+        - Image (jpg, png)
+        - PDF
+        - DOCX
+        - JSON (для маскировки данных и сохранения в базу)
+        '''
+        bot.reply_to(message, help_text)
+        return
     logger.info(f"New session started by user {message.from_user.id}")
     markup = InlineKeyboardMarkup()
     markup.row_width = 2
@@ -59,7 +116,7 @@ def send_welcome(message):
                InlineKeyboardButton("Image", callback_data="image"),
                InlineKeyboardButton("PDF", callback_data="pdf"),
                InlineKeyboardButton("DOCX", callback_data="docx"),
-               InlineKeyboardButton("DOCX", callback_data="docx"))
+               InlineKeyboardButton("JSON", callback_data="json"))
     bot.reply_to(message, "Welcome! Choose the type of content to anonymize:", reply_markup=markup)
     logger.info(f"Sent welcome message with options to user {message.from_user.id}")
 
@@ -83,6 +140,10 @@ def callback_query(call):
         bot.answer_callback_query(call.id)
         bot.send_message(call.message.chat.id, "Please send the DOCX file you want to anonymize.")
         logger.info(f"DOCX anonymization requested by user {call.from_user.id}")
+    elif call.data == "json":
+        bot.answer_callback_query(call.id)
+        bot.send_message(call.message.chat.id, "Please send the JSON file with data to mask and save to database.")
+        logger.info(f"JSON data masking requested by user {call.from_user.id}")
 
 
 
@@ -118,7 +179,7 @@ def format_anonymized_data(data, max_rows=5):
         formatted += f"\n... and {len(data) - max_rows} more rows"
     
     # Use monospace formatting for Telegram
-    return f"`\n{formatted}\n`"
+    return f"⁠ \n{formatted}\n ⁠"
 
 def generate_anonymization_summary(table_name, columns, num_records):
     summary = f"Сводка анонимизации:\n"
@@ -197,7 +258,7 @@ def format_anonymized_data(data, max_rows=5):
         formatted += f"\n... and {len(data) - max_rows} more rows"
     
     # Use monospace formatting for Telegram
-    return f"`\n{formatted}\n`"
+    return f"⁠ \n{formatted}\n ⁠"
 
 def generate_anonymization_summary(table_name, columns, num_records):
     summary = f"Сводка анонимизации:\n"
@@ -262,6 +323,7 @@ def handle_doc(message):
             '.txt': (anonymize_text, 'txt'),
             '.doc': (anonymize_docx, 'docx'),
             '.rtf': (anonymize_text, 'txt'),
+            '.json': (None, 'json'),  # For JSON files
             '.db': (None, 'db'),  # For SQLite database files
             '.sqlite': (None, 'db'),  # Alternative SQLite extension
             '.sqlite3': (None, 'db')  # Another common SQLite extension
@@ -285,12 +347,56 @@ def handle_doc(message):
         anonymize_func, output_ext = supported_types[file_extension]
         output_path = os.path.join(TEMP_DIR, f'{file_name}_anonymized.{output_ext}')
         
-        # Perform anonymization
-        anonymize_func(temp_file_path, output_path)
-        
-        # Send the anonymized file back to user
-        with open(output_path, 'rb') as anonymized_file:
-            bot.send_document(message.chat.id, anonymized_file)
+        # Special handling for JSON files
+        if file_extension == '.json':
+            try:
+                # Читаем данные из JSON файла
+                with open(temp_file_path, 'r', encoding='utf-8') as f:
+                    data = json.load(f)
+
+                # Маскируем данные
+                masked_data = anonymizer.mask_data(data)
+
+                # Подключаемся к базе данных
+                if anonymizer.connect_to_database('sqlite', **DB_PARAMS):
+                    try:
+                        # Создаем таблицу, если её нет
+                        create_table_query = '''
+                        CREATE TABLE IF NOT EXISTS employees (
+                            name TEXT,
+                            email TEXT,
+                            phone TEXT,
+                            address TEXT,
+                            iin TEXT
+                        )
+                        '''
+                        anonymizer.db_cursor.execute(create_table_query)
+
+                        # Сохраняем маскированные данные в базе
+                        if anonymizer.write_to_database('employees', masked_data):
+                            bot.reply_to(message, 'Данные успешно сохранены в базе данных')
+                        else:
+                            bot.reply_to(message, 'Ошибка при сохранении в базу данных')
+                    finally:
+                        anonymizer.close_connection()
+
+                # Сохраняем результат в JSON
+                with open(output_path, 'w', encoding='utf-8') as f:
+                    json.dump(masked_data, f, ensure_ascii=False, indent=2)
+
+                # Отправляем результат
+                with open(output_path, 'rb') as f:
+                    bot.send_document(message.chat.id, f, caption='Замаскированные данные')
+
+            except Exception as e:
+                bot.reply_to(message, f'Произошла ошибка при обработке JSON файла: {str(e)}')
+        else:
+            # Perform regular file anonymization
+            anonymize_func(temp_file_path, output_path)
+            
+            # Send the anonymized file back to user
+            with open(output_path, 'rb') as anonymized_file:
+                bot.send_document(message.chat.id, anonymized_file)
 
     except Exception as e:
         print(f"Error processing document: {e}")
