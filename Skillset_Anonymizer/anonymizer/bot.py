@@ -1,12 +1,42 @@
 import os
 import telebot
+import logging
+from datetime import datetime
 from image_anonymizer import anonymize_image
 from text_anonymizer import anonymize_text
 from pdf_anoymizer import anonymize_pdf
 from docx_anonymizer import anonymize_docx
 import tempfile
+import csv
 from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
-from db import DatabaseAnonymizer
+
+# Configure logging
+log_dir = '/tmp/anonymizer_logs/'
+if not os.path.exists(log_dir):
+    os.makedirs(log_dir)
+
+log_file = os.path.join(log_dir, f'bot_{datetime.now().strftime("%Y%m%d")}.log')
+
+# Create a logger
+logger = logging.getLogger('AnonymizerBot')
+logger.setLevel(logging.INFO)
+
+# Create file handler
+file_handler = logging.FileHandler(log_file)
+file_handler.setLevel(logging.INFO)
+
+# Create console handler
+console_handler = logging.StreamHandler()
+console_handler.setLevel(logging.INFO)
+
+# Create formatter
+formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+file_handler.setFormatter(formatter)
+console_handler.setFormatter(formatter)
+
+# Add handlers to logger
+logger.addHandler(file_handler)
+logger.addHandler(console_handler)
 
 # Create a bot instance using your bot token
 API_TOKEN = '8054128372:AAGWna1SQ7jmZXARi3prt0ytqi5qsEBH2Tw'
@@ -22,138 +52,79 @@ if not os.path.exists(TEMP_DIR):
 # Function to handle start command and show anonymization options
 @bot.message_handler(commands=['start'])
 def send_welcome(message):
+    logger.info(f"New session started by user {message.from_user.id}")
     markup = InlineKeyboardMarkup()
     markup.row_width = 2
     markup.add(InlineKeyboardButton("Text", callback_data="text"),
                InlineKeyboardButton("Image", callback_data="image"),
                InlineKeyboardButton("PDF", callback_data="pdf"),
                InlineKeyboardButton("DOCX", callback_data="docx"),
-               InlineKeyboardButton("Database", callback_data="database"))
+               InlineKeyboardButton("DOCX", callback_data="docx"))
     bot.reply_to(message, "Welcome! Choose the type of content to anonymize:", reply_markup=markup)
+    logger.info(f"Sent welcome message with options to user {message.from_user.id}")
 
 # Function to handle button callbacks
 @bot.callback_query_handler(func=lambda call: True)
 def callback_query(call):
+    logger.info(f"Callback received from user {call.from_user.id}: {call.data}")
     if call.data == "text":
         bot.answer_callback_query(call.id)
         bot.send_message(call.message.chat.id, "Please send the text you want to anonymize.")
+        logger.info(f"Text anonymization requested by user {call.from_user.id}")
     elif call.data == "image":
         bot.answer_callback_query(call.id)
         bot.send_message(call.message.chat.id, "Please send the image you want to anonymize.")
+        logger.info(f"Image anonymization requested by user {call.from_user.id}")
     elif call.data == "pdf":
         bot.answer_callback_query(call.id)
         bot.send_message(call.message.chat.id, "Please send the PDF file you want to anonymize.")
+        logger.info(f"PDF anonymization requested by user {call.from_user.id}")
     elif call.data == "docx":
         bot.answer_callback_query(call.id)
         bot.send_message(call.message.chat.id, "Please send the DOCX file you want to anonymize.")
-    elif call.data == "database":
-        bot.answer_callback_query(call.id)
-        send_database_options(call.message.chat.id)
+        logger.info(f"DOCX anonymization requested by user {call.from_user.id}")
 
-def send_database_options(chat_id):
-    markup = InlineKeyboardMarkup()
-    markup.row_width = 2
-    markup.add(
-        InlineKeyboardButton("MySQL", callback_data="db_mysql"),
-        InlineKeyboardButton("PostgreSQL", callback_data="db_postgresql"),
-        InlineKeyboardButton("SQLite", callback_data="db_sqlite")
-    )
-    bot.send_message(chat_id, "Please select the database type:", reply_markup=markup)
 
-@bot.callback_query_handler(func=lambda call: call.data.startswith("db_"))
-def handle_database_type(call):
-    db_type = call.data[3:]
-    bot.answer_callback_query(call.id)
-    bot.send_message(call.message.chat.id, f"You selected {db_type}. Now, please provide the following information separated by commas:\ntable_name,columns_to_anonymize (space-separated)")
-    bot.register_next_step_handler(call.message, process_database_info, db_type)
 
-def process_database_info(message, db_type):
-    try:
-        parts = message.text.split(',')
-        if len(parts) != 2:
-            raise ValueError("Invalid input format. Please provide table name and columns to anonymize separated by a comma.")
-        
-        table_name, columns_to_anonymize = [p.strip() for p in parts]
-        columns_to_anonymize = columns_to_anonymize.split()
-        
-        if not table_name or not columns_to_anonymize:
-            raise ValueError("Table name and at least one column to anonymize must be provided.")
-        
-        # Confirmation step
-        confirm_msg = f"Please confirm the following details:\n\nTable: {table_name}\nColumns to anonymize: {', '.join(columns_to_anonymize)}\n\nDo you want to proceed with anonymization?"
-        markup = InlineKeyboardMarkup()
-        markup.add(InlineKeyboardButton("Yes", callback_data="confirm_db_yes"),
-                   InlineKeyboardButton("No", callback_data="confirm_db_no"))
-        bot.send_message(message.chat.id, confirm_msg, reply_markup=markup)
-        
-        # Store the information for later use
-        bot.db_info = {
-            'table_name': table_name,
-            'columns_to_anonymize': columns_to_anonymize
-        }
-    except ValueError as ve:
-        bot.reply_to(message, f"Error: {str(ve)}. Please try again.")
-    except Exception as e:
-        print(f"Error processing database info: {e}")
-        bot.reply_to(message, f"An unexpected error occurred: {str(e)}. Please try again or contact support if the issue persists.")
-
-@bot.callback_query_handler(func=lambda call: call.data.startswith("confirm_db_"))
-def handle_database_confirmation(call):
-    bot.answer_callback_query(call.id)
-    if call.data == "confirm_db_yes":
-        try:
-            info = bot.db_info
-            anonymizer = DatabaseAnonymizer(info['table_name'], info['columns_to_anonymize'])
-            anonymized_data = anonymizer.anonymize_table()
-            formatted_data = format_anonymized_data(anonymized_data)
-            bot.send_message(call.message.chat.id, f"Database table {info['table_name']} has been anonymized successfully. Here's a sample of the anonymized data:")
-            bot.send_message(call.message.chat.id, formatted_data)
-            
-            # Generate a summary of the anonymization process
-            summary = generate_anonymization_summary(info['table_name'], info['columns_to_anonymize'], len(anonymized_data))
-            bot.send_message(call.message.chat.id, summary)
-            
-            # Save anonymized data for future reference
-            bot.anonymized_data = anonymized_data
-            
-            # Offer to show more data, download anonymized data, or start over
-            markup = InlineKeyboardMarkup()
-            markup.add(InlineKeyboardButton("Show More Data", callback_data="show_more_data"),
-                       InlineKeyboardButton("Download Anonymized Data", callback_data="download_data"),
-                       InlineKeyboardButton("Start Over", callback_data="start_over"))
-            bot.send_message(call.message.chat.id, "What would you like to do next?", reply_markup=markup)
-        except Exception as e:
-            print(f"Error processing database: {e}")
-            bot.send_message(call.message.chat.id, f"Sorry, an error occurred while anonymizing the database: {str(e)}. Please check your input and try again.")
-        finally:
-            # Keep the stored database info for potential further operations
-            pass
-    else:
-        bot.send_message(call.message.chat.id, "Database anonymization cancelled. You can start over if you wish.")
-        bot.db_info = None
-        bot.anonymized_data = None
+# Removed old process_database_info and handle_database_confirmation functions as they're no longer needed
 
 def format_anonymized_data(data, max_rows=5):
     if not data:
         return "No data to display."
     
     headers = list(data[0].keys())
-    formatted = " | ".join(headers) + "\n"
-    formatted += "-" * len(formatted) + "\n"
+    max_lengths = {header: len(header) for header in headers}
+    for row in data:
+        for header in headers:
+            max_lengths[header] = max(max_lengths[header], len(str(row[header])))
     
+    formatted = ""
+    # Add header row
+    for header in headers:
+        formatted += f"{header:{max_lengths[header]}} | "
+    formatted = formatted.rstrip(" | ") + "\n"
+    
+    # Add separator line
+    separator = "-" * (sum(max_lengths.values()) + (len(headers) * 3) - 1)
+    formatted += separator + "\n"
+    
+    # Add data rows
     for row in data[:max_rows]:
-        formatted += " | ".join(str(row[header]) for header in headers) + "\n"
+        for header in headers:
+            formatted += f"{str(row[header]):{max_lengths[header]}} | "
+        formatted = formatted.rstrip(" | ") + "\n"
     
     if len(data) > max_rows:
         formatted += f"\n... and {len(data) - max_rows} more rows"
     
-    return f"```\n{formatted}\n```"
+    # Use monospace formatting for Telegram
+    return f"`\n{formatted}\n`"
 
 def generate_anonymization_summary(table_name, columns, num_records):
-    summary = f"Anonymization Summary:\n"
-    summary += f"- Table: {table_name}\n"
-    summary += f"- Columns anonymized: {', '.join(columns)}\n"
-    summary += f"- Total records processed: {num_records}\n"
+    summary = f"Сводка анонимизации:\n"
+    summary += f"- Таблица: {table_name}\n"
+    summary += f"- Анонимизированные столбцы: {', '.join(columns)}\n"
+    summary += f"- Всего обработано записей: {num_records}\n"
     return summary
 
 @bot.callback_query_handler(func=lambda call: call.data == "show_more_data")
@@ -201,41 +172,61 @@ def format_anonymized_data(data, max_rows=5):
         return "No data to display."
     
     headers = list(data[0].keys())
-    formatted = " | ".join(headers) + "\n"
-    formatted += "-" * len(formatted) + "\n"
+    max_lengths = {header: len(header) for header in headers}
+    for row in data:
+        for header in headers:
+            max_lengths[header] = max(max_lengths[header], len(str(row[header])))
     
+    formatted = ""
+    # Add header row
+    for header in headers:
+        formatted += f"{header:{max_lengths[header]}} | "
+    formatted = formatted.rstrip(" | ") + "\n"
+    
+    # Add separator line
+    separator = "-" * (sum(max_lengths.values()) + (len(headers) * 3) - 1)
+    formatted += separator + "\n"
+    
+    # Add data rows
     for row in data[:max_rows]:
-        formatted += " | ".join(str(row[header]) for header in headers) + "\n"
+        for header in headers:
+            formatted += f"{str(row[header]):{max_lengths[header]}} | "
+        formatted = formatted.rstrip(" | ") + "\n"
     
     if len(data) > max_rows:
         formatted += f"\n... and {len(data) - max_rows} more rows"
     
-    return f"```\n{formatted}\n```"
+    # Use monospace formatting for Telegram
+    return f"`\n{formatted}\n`"
 
 def generate_anonymization_summary(table_name, columns, num_records):
-    summary = f"Anonymization Summary:\n"
-    summary += f"- Table: {table_name}\n"
-    summary += f"- Columns anonymized: {', '.join(columns)}\n"
-    summary += f"- Total records processed: {num_records}\n"
+    summary = f"Сводка анонимизации:\n"
+    summary += f"- Таблица: {table_name}\n"
+    summary += f"- Анонимизированные столбцы: {', '.join(columns)}\n"
+    summary += f"- Всего обработано записей: {num_records}\n"
     return summary
 
 
 # Function to handle receiving text
 @bot.message_handler(func=lambda message: True, content_types=['text'])
 def handle_text(message):
+    logger.info(f"Processing text anonymization request from user {message.from_user.id}")
     try:
         anonymized_text = anonymize_text(message.text)
+        logger.info(f"Successfully anonymized text for user {message.from_user.id}")
         bot.reply_to(message, f"Anonymized text:\n{anonymized_text}")
     except Exception as e:
-        print(f"Error processing text: {e}")
+        logger.error(f"Error processing text for user {message.from_user.id}: {str(e)}")
         bot.reply_to(message, "Sorry, something went wrong while processing your text. Please try again.")
 
 # Function to handle receiving the image
 @bot.message_handler(content_types=['photo'])
 def handle_image(message):
+    logger.info(f"Processing image anonymization request from user {message.from_user.id}")
     try:
         # Get the file ID of the image
         file_info = bot.get_file(message.photo[-1].file_id)
+        logger.info(f"Retrieved image file info for user {message.from_user.id}")
         
         # Download the image file from Telegram servers
         downloaded_file = bot.download_file(file_info.file_path)
@@ -257,39 +248,72 @@ def handle_image(message):
             bot.send_photo(message.chat.id, output_file)
 
     except Exception as e:
-        print(f"Error processing image: {e}")
+        logger.error(f"Error processing image for user {message.from_user.id}: {str(e)}")
         bot.reply_to(message, "Sorry, something went wrong while processing your image. Please try again.")
 
 # Function to handle receiving PDF files
 @bot.message_handler(content_types=['document'])
 def handle_doc(message):
     try:
+        # Define supported file types and their corresponding functions
+        supported_types = {
+            '.pdf': (anonymize_pdf, 'txt'),
+            '.docx': (anonymize_docx, 'docx'),
+            '.txt': (anonymize_text, 'txt'),
+            '.doc': (anonymize_docx, 'docx'),
+            '.rtf': (anonymize_text, 'txt'),
+            '.db': (None, 'db'),  # For SQLite database files
+            '.sqlite': (None, 'db'),  # Alternative SQLite extension
+            '.sqlite3': (None, 'db')  # Another common SQLite extension
+        }
+
         file_info = bot.get_file(message.document.file_id)
         downloaded_file = bot.download_file(file_info.file_path)
         file_name, file_extension = os.path.splitext(message.document.file_name)
-        
+        file_extension = file_extension.lower()
+
+        if file_extension not in supported_types:
+            supported_formats = ', '.join(supported_types.keys())
+            bot.reply_to(message, f"Unsupported file type. Currently supported formats are: {supported_formats}")
+            return
+
         with tempfile.NamedTemporaryFile(delete=False, dir=TEMP_DIR, suffix=file_extension) as temp_file:
             temp_file.write(downloaded_file)
             temp_file_path = temp_file.name
 
-        if file_extension.lower() == '.pdf':
-            output_path = os.path.join(TEMP_DIR, f'{file_name}_anonymized.txt')
-            anonymize_pdf(temp_file_path, output_path)
-            with open(output_path, 'rb') as anonymized_file:
-                bot.send_document(message.chat.id, anonymized_file)
-        elif file_extension.lower() == '.docx':
-            output_path = os.path.join(TEMP_DIR, f'{file_name}_anonymized.docx')
-            anonymize_docx(temp_file_path, output_path)
-            with open(output_path, 'rb') as anonymized_file:
-                bot.send_document(message.chat.id, anonymized_file)
-        else:
-            bot.reply_to(message, "Unsupported file type. Please send a PDF or DOCX file.")
+        # Handle file processing
+        anonymize_func, output_ext = supported_types[file_extension]
+        output_path = os.path.join(TEMP_DIR, f'{file_name}_anonymized.{output_ext}')
+        
+        # Perform anonymization
+        anonymize_func(temp_file_path, output_path)
+        
+        # Send the anonymized file back to user
+        with open(output_path, 'rb') as anonymized_file:
+            bot.send_document(message.chat.id, anonymized_file)
 
     except Exception as e:
         print(f"Error processing document: {e}")
         bot.reply_to(message, "Sorry, something went wrong while processing your document. Please try again.")
+        
+        # Clean up temporary files in case of error
+        if 'temp_file_path' in locals():
+            try:
+                os.remove(temp_file_path)
+            except:
+                pass
+        if 'output_path' in locals():
+            try:
+                os.remove(output_path)
+            except:
+                pass
 
 # Start polling to listen for incoming messages
 if __name__ == '__main__':
-    print("Bot is running...")
-    bot.polling(none_stop=True)
+    logger.info("Bot is starting...")
+    try:
+        bot.polling(none_stop=True)
+    except Exception as e:
+        logger.error(f"Critical error in bot polling: {str(e)}")
+    finally:
+        logger.info("Bot has stopped")

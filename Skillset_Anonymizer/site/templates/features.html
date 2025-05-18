@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Features - Skillset Anonymizer</title>
+    <link href="/static/css/style.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .feature-card {
+            transition: transform 0.3s ease;
+        }
+        .feature-card:hover {
+            transform: translateY(-5px);
+        }
+        .data-flow-animation {
+            animation: flowAnimation 2s infinite;
+        }
+        @keyframes flowAnimation {
+            0% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-gray-50 to-blue-50 text-gray-900">
+    <div class="container mx-auto px-4">
+        <div class="app-header">
+            <div class="flex justify-between items-center py-6">
+                <h1 class="text-4xl font-bold text-blue-600">Skillset Anonymizer</h1>
+                <nav class="flex items-center space-x-6">
+                    <a href="/" class="nav-link hover:text-blue-600 transition-colors">Home</a>
+                    <a href="/about" class="nav-link hover:text-blue-600 transition-colors">About</a>
+                    <a href="/features" class="nav-link text-blue-600">Features</a>
+                    <a href="/contact" class="nav-link hover:text-blue-600 transition-colors">Contact</a>
+                    <a href="/login" class="btn-primary bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg transition-colors">Login</a>
+                </nav>
+            </div>
+        </div>
+
+        <main class="py-12">
+            <section class="max-w-4xl mx-auto text-center mb-16">
+                <div class="mb-8 text-blue-600 data-flow-animation">
+                    <i class="fas fa-shield-alt text-6xl"></i>
+                </div>
+                <h2 class="text-5xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-purple-600">Intelligent Data Protection</h2>
+                <p class="text-xl text-gray-700 leading-relaxed max-w-3xl mx-auto">Our advanced anonymization suite uses AI-powered technology to secure your sensitive information while maintaining data usability.</p>
+                
+                <!-- Step Process -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mt-12">
+                    <div class="bg-white p-6 rounded-xl shadow-lg relative">
+                        <div class="absolute -top-4 -left-4 w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold">1</div>
+                        <div class="text-blue-600 mb-4">
+                            <i class="fas fa-upload text-3xl"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold mb-2">Upload</h3>
+                        <p class="text-gray-600">Choose your document (Text, PDF, DOCX, or Image)</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl shadow-lg relative">
+                        <div class="absolute -top-4 -left-4 w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold">2</div>
+                        <div class="text-blue-600 mb-4">
+                            <i class="fas fa-magic text-3xl"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold mb-2">Process</h3>
+                        <p class="text-gray-600">Our AI detects and processes sensitive data</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl shadow-lg relative">
+                        <div class="absolute -top-4 -left-4 w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold">3</div>
+                        <div class="text-blue-600 mb-4">
+                            <i class="fas fa-download text-3xl"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold mb-2">Download</h3>
+                        <p class="text-gray-600">Get your anonymized document instantly</p>
+                    </div>
+                </div>
+                
+                <div class="feature-card bg-white p-8 rounded-xl shadow-lg hover:shadow-xl transition-all">
+                    <div class="text-green-600 mb-6">
+                        <i class="fas fa-image text-4xl"></i>
+                    </div>
+                    <h3 class="text-2xl font-semibold mb-4">Image Anonymization</h3>
+                    <p class="text-gray-600 mb-6">Intelligent image processing with facial and text recognition.</p>
+                    <div class="space-y-3">
+                        <div class="flex items-center text-gray-700">
+                            <i class="fas fa-check-circle text-green-500 mr-3"></i>
+                            <span>Face Detection</span>
+                        </div>
+                        <div class="flex items-center text-gray-700">
+                            <i class="fas fa-check-circle text-green-500 mr-3"></i>
+                            <span>Text Recognition</span>
+                        </div>
+                        <div class="flex items-center text-gray-700">
+                            <i class="fas fa-check-circle text-green-500 mr-3"></i>
+                            <span>Smart Blurring</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="grid md:grid-cols-2 lg:grid-cols-4 gap-8 mb-16">
+                <div class="feature-card bg-white p-8 rounded-xl shadow-lg hover:shadow-xl transition-all">
+                    <div class="text-blue-600 mb-6">
+                        <i class="fas fa-file-alt text-4xl"></i>
+                    </div>
+                    <h3 class="text-2xl font-semibold mb-4">Text Anonymization</h3>
+                    <p class="text-gray-600 mb-6">Smart text processing with pattern recognition and context preservation.</p>
+                    <div class="space-y-3">
+                        <div class="flex items-center text-gray-700">
+                            <i class="fas fa-check-circle text-green-500 mr-3"></i>
+                            <span>Pattern Recognition</span>
+                        </div>
+                        <div class="flex items-center text-gray-700">
+                            <i class="fas fa-check-circle text-green-500 mr-3"></i>
+                            <span>Context Preservation</span>
+                        </div>
+                        <div class="flex items-center text-gray-700">
+                            <i class="fas fa-check-circle text-green-500 mr-3"></i>
+                            <span>Batch Processing</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="feature-card bg-white p-8 rounded-xl shadow-lg hover:shadow-xl transition-all">
+                    <div class="text-green-600 mb-6">
+                        <i class="fas fa-image text-4xl"></i>
+                    </div>
+                    <h3 class="text-2xl font-semibold mb-4">Image Anonymization</h3>
+                    <p class="text-gray-600 mb-6">Intelligent image processing with facial and text recognition.</p>
+                    <div class="space-y-3">
+                        <div class="flex items-center text-gray-700">
+                            <i class="fas fa-check-circle text-green-500 mr-3"></i>
+                            <span>Face Detection</span>
+                        </div>
+                        <div class="flex items-center text-gray-700">
+                            <i class="fas fa-check-circle text-green-500 mr-3"></i>
+                            <span>Text Recognition</span>
+                        </div>
+                        <div class="flex items-center text-gray-700">
+                            <i class="fas fa-check-circle text-green-500 mr-3"></i>
+                            <span>Smart Blurring</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="feature-card bg-white p-8 rounded-xl shadow-lg hover:shadow-xl transition-all">
+                    <div class="text-purple-600 mb-6">
+                        <i class="fas fa-file-pdf text-4xl"></i>
+                    </div>
+                    <h3 class="text-2xl font-semibold mb-4">PDF Anonymization</h3>
+                    <p class="text-gray-600 mb-6">Advanced PDF processing with layout and formatting preservation.</p>
+                    <div class="space-y-3">
+                        <div class="flex items-center text-gray-700">
+                            <i class="fas fa-check-circle text-green-500 mr-3"></i>
+                            <span>Layout Preservation</span>
+                        </div>
+                        <div class="flex items-center text-gray-700">
+                            <i class="fas fa-check-circle text-green-500 mr-3"></i>
+                            <span>Smart Text Detection</span>
+                        </div>
+                        <div class="flex items-center text-gray-700">
+                            <i class="fas fa-check-circle text-green-500 mr-3"></i>
+                            <span>Metadata Cleaning</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="feature-card bg-white p-8 rounded-xl shadow-lg hover:shadow-xl transition-all">
+                    <div class="text-green-600 mb-6">
+                        <i class="fas fa-image text-4xl"></i>
+                    </div>
+                    <h3 class="text-2xl font-semibold mb-4">Image Anonymization</h3>
+                    <p class="text-gray-600 mb-6">Intelligent image processing with facial and text recognition.</p>
+                    <div class="space-y-3">
+                        <div class="flex items-center text-gray-700">
+                            <i class="fas fa-check-circle text-green-500 mr-3"></i>
+                            <span>Face Detection</span>
+                        </div>
+                        <div class="flex items-center text-gray-700">
+                            <i class="fas fa-check-circle text-green-500 mr-3"></i>
+                            <span>Text Recognition</span>
+                        </div>
+                        <div class="flex items-center text-gray-700">
+                            <i class="fas fa-check-circle text-green-500 mr-3"></i>
+                            <span>Smart Blurring</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="feature-card bg-white p-8 rounded-xl shadow-lg hover:shadow-xl transition-all">
+                    <div class="text-indigo-600 mb-6">
+                        <i class="fas fa-file-word text-4xl"></i>
+                    </div>
+                    <h3 class="text-2xl font-semibold mb-4">DOCX Anonymization</h3>
+                    <p class="text-gray-600 mb-6">Comprehensive DOCX processing with formatting retention.</p>
+                    <div class="space-y-3">
+                        <div class="flex items-center text-gray-700">
+                            <i class="fas fa-check-circle text-green-500 mr-3"></i>
+                            <span>Format Retention</span>
+                        </div>
+                        <div class="flex items-center text-gray-700">
+                            <i class="fas fa-check-circle text-green-500 mr-3"></i>
+                            <span>Style Preservation</span>
+                        </div>
+                        <div class="flex items-center text-gray-700">
+                            <i class="fas fa-check-circle text-green-500 mr-3"></i>
+                            <span>Track Changes Support</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="feature-card bg-white p-8 rounded-xl shadow-lg hover:shadow-xl transition-all">
+                    <div class="text-green-600 mb-6">
+                        <i class="fas fa-image text-4xl"></i>
+                    </div>
+                    <h3 class="text-2xl font-semibold mb-4">Image Anonymization</h3>
+                    <p class="text-gray-600 mb-6">Intelligent image processing with facial and text recognition.</p>
+                    <div class="space-y-3">
+                        <div class="flex items-center text-gray-700">
+                            <i class="fas fa-check-circle text-green-500 mr-3"></i>
+                            <span>Face Detection</span>
+                        </div>
+                        <div class="flex items-center text-gray-700">
+                            <i class="fas fa-check-circle text-green-500 mr-3"></i>
+                            <span>Text Recognition</span>
+                        </div>
+                        <div class="flex items-center text-gray-700">
+                            <i class="fas fa-check-circle text-green-500 mr-3"></i>
+                            <span>Smart Blurring</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="feature-card bg-white p-8 rounded-xl shadow-lg hover:shadow-xl transition-all">
+                    <div class="text-purple-600 mb-6">
+                        <i class="fas fa-image text-4xl"></i>
+                    </div>
+                    <h3 class="text-2xl font-semibold mb-4">Image Anonymization</h3>
+                    <p class="text-gray-600 mb-6">Advanced OCR with AI-powered detection and smart redaction.</p>
+                    <div class="space-y-3">
+                        <div class="flex items-center text-gray-700">
+                            <i class="fas fa-check-circle text-green-500 mr-3"></i>
+                            <span>Smart OCR Technology</span>
+                        </div>
+                        <div class="flex items-center text-gray-700">
+                            <i class="fas fa-check-circle text-green-500 mr-3"></i>
+                            <span>Automatic Redaction</span>
+                        </div>
+                        <div class="flex items-center text-gray-700">
+                            <i class="fas fa-check-circle text-green-500 mr-3"></i>
+                            <span>Batch Processing</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="feature-card bg-white p-8 rounded-xl shadow-lg hover:shadow-xl transition-all">
+                    <div class="text-green-600 mb-6">
+                        <i class="fas fa-image text-4xl"></i>
+                    </div>
+                    <h3 class="text-2xl font-semibold mb-4">Image Anonymization</h3>
+                    <p class="text-gray-600 mb-6">Intelligent image processing with facial and text recognition.</p>
+                    <div class="space-y-3">
+                        <div class="flex items-center text-gray-700">
+                            <i class="fas fa-check-circle text-green-500 mr-3"></i>
+                            <span>Face Detection</span>
+                        </div>
+                        <div class="flex items-center text-gray-700">
+                            <i class="fas fa-check-circle text-green-500 mr-3"></i>
+                            <span>Text Recognition</span>
+                        </div>
+                        <div class="flex items-center text-gray-700">
+                            <i class="fas fa-check-circle text-green-500 mr-3"></i>
+                            <span>Smart Blurring</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="feature-card bg-white p-8 rounded-xl shadow-lg hover:shadow-xl transition-all">
+                    <div class="text-indigo-600 mb-6">
+                        <i class="fas fa-database text-4xl"></i>
+                    </div>
+                    <h3 class="text-2xl font-semibold mb-4">Database Protection</h3>
+                    <p class="text-gray-600 mb-6">Comprehensive database anonymization with relationship preservation.</p>
+                    <div class="space-y-3">
+                        <div class="flex items-center text-gray-700">
+                            <i class="fas fa-check-circle text-green-500 mr-3"></i>
+                            <span>SQL Database Support</span>
+                        </div>
+                        <div class="flex items-center text-gray-700">
+                            <i class="fas fa-check-circle text-green-500 mr-3"></i>
+                            <span>CSV Processing</span>
+                        </div>
+                        <div class="flex items-center text-gray-700">
+                            <i class="fas fa-check-circle text-green-500 mr-3"></i>
+                            <span>Data Integrity Check</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="feature-card bg-white p-8 rounded-xl shadow-lg hover:shadow-xl transition-all">
+                    <div class="text-green-600 mb-6">
+                        <i class="fas fa-image text-4xl"></i>
+                    </div>
+                    <h3 class="text-2xl font-semibold mb-4">Image Anonymization</h3>
+                    <p class="text-gray-600 mb-6">Intelligent image processing with facial and text recognition.</p>
+                    <div class="space-y-3">
+                        <div class="flex items-center text-gray-700">
+                            <i class="fas fa-check-circle text-green-500 mr-3"></i>
+                            <span>Face Detection</span>
+                        </div>
+                        <div class="flex items-center text-gray-700">
+                            <i class="fas fa-check-circle text-green-500 mr-3"></i>
+                            <span>Text Recognition</span>
+                        </div>
+                        <div class="flex items-center text-gray-700">
+                            <i class="fas fa-check-circle text-green-500 mr-3"></i>
+                            <span>Smart Blurring</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="bg-white rounded-xl p-12 mb-16 shadow-lg">
+                <h2 class="text-3xl font-bold mb-12 text-center">Smart Detection Capabilities</h2>
+                <div class="grid md:grid-cols-3 gap-12">
+                    <div class="text-center p-6 rounded-lg bg-gradient-to-b from-blue-50 to-transparent">
+                        <div class="text-blue-600 mb-6">
+                            <i class="fas fa-id-card text-4xl"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold mb-4">Personal Data</h3>
+                        <p class="text-gray-600">Intelligent detection of names, addresses, IDs, and contact information</p>
+                    </div>
+                    <div class="text-center p-6 rounded-lg bg-gradient-to-b from-purple-50 to-transparent">
+                        <div class="text-purple-600 mb-6">
+                            <i class="fas fa-credit-card text-4xl"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold mb-4">Financial Records</h3>
+                        <p class="text-gray-600">Secure handling of payment data, account numbers, and transactions</p>
+                    </div>
+                    <div class="text-center p-6 rounded-lg bg-gradient-to-b from-indigo-50 to-transparent">
+                        <div class="text-indigo-600 mb-6">
+                            <i class="fas fa-fingerprint text-4xl"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold mb-4">Biometric Data</h3>
+                        <p class="text-gray-600">Protection of sensitive biometric identifiers and patterns</p>
+                    </div>
+                </div>
+                
+                <div class="feature-card bg-white p-8 rounded-xl shadow-lg hover:shadow-xl transition-all">
+                    <div class="text-green-600 mb-6">
+                        <i class="fas fa-image text-4xl"></i>
+                    </div>
+                    <h3 class="text-2xl font-semibold mb-4">Image Anonymization</h3>
+                    <p class="text-gray-600 mb-6">Intelligent image processing with facial and text recognition.</p>
+                    <div class="space-y-3">
+                        <div class="flex items-center text-gray-700">
+                            <i class="fas fa-check-circle text-green-500 mr-3"></i>
+                            <span>Face Detection</span>
+                        </div>
+                        <div class="flex items-center text-gray-700">
+                            <i class="fas fa-check-circle text-green-500 mr-3"></i>
+                            <span>Text Recognition</span>
+                        </div>
+                        <div class="flex items-center text-gray-700">
+                            <i class="fas fa-check-circle text-green-500 mr-3"></i>
+                            <span>Smart Blurring</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="text-center bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl p-12 text-white">
+                <h2 class="text-3xl font-bold mb-8">Experience Advanced Data Protection</h2>
+                <div class="space-x-4">
+                    <a href="/text_anonymizer" class="bg-white text-blue-600 hover:bg-blue-50 px-8 py-3 rounded-lg text-lg transition-colors inline-flex items-center">
+                        <i class="fas fa-shield-alt mr-2"></i>
+                        Try Demo
+                    </a>
+                    <a href="/contact" class="border-2 border-white text-white hover:bg-white hover:text-blue-600 px-8 py-3 rounded-lg text-lg transition-colors inline-flex items-center">
+                        <i class="fas fa-envelope mr-2"></i>
+                        Contact Us
+                    </a>
+                </div>
+            </section>
+        </main>
+
+        <footer class="py-8 text-center text-gray-600">
+            <p>&copy; 2024 Skillset Anonymizer. All rights reserved.</p>
+        </footer>
+    </div>
+</body>
+</html>

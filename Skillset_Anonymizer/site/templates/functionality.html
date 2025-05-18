@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Функционал - Anonymizer App</title>
+    <link href="/static/css/style.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container mx-auto px-4">
+        <div class="app-header">
+            <div class="flex justify-between items-center">
+                <h1 class="text-4xl font-bold">Anonymizator CyberForuta3</h1>
+                <div class="flex items-center space-x-4">
+                    <a href="/" class="nav-link">Главная</a>
+                    <a href="/about" class="nav-link">О нас</a>
+                    <a href="/functionality" class="nav-link">Функционал</a>
+                    <a href="/login" class="nav-link">Вход</a>
+                    <button class="icon-button"><i class="fas fa-cog"></i></button>
+                    <button class="icon-button"><i class="fas fa-moon"></i></button>
+                </div>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <h2>Функционал</h2>
+            <div class="feature-card">
+                <h3>Наши Возможности</h3>
+                <p class="card-text">Наше приложение позволяет анонимизировать различные типы данных, включая текст, изображения, PDF и DOCX файлы, а также базы данных.</p>
+                <div class="grid grid-cols-2 gap-4 mt-8">
+                    <a href="/text_anonymizer" class="btn-primary">Текстовый анонимайзер</a>
+                    <a href="/docx_anonymizer" class="btn-primary">DOCX анонимайзер</a>
+                    <a href="/pdf_anonymizer" class="btn-primary">PDF анонимайзер</a>
+                    <a href="/image_anonymizer" class="btn-primary">Анонимайзер изображений</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

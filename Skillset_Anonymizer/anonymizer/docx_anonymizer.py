@@ -22,8 +22,9 @@ def anonymize_docx(input_docx_path, output_docx_path):
     except Exception as e:
         print(f"An error occurred: {e}")
 
-# Example usage
-input_docx_path = "sample.docx"  # Ensure this is in the current directory or provide a correct path
-output_docx_path = "sample_anonymized.docx"
-anonymize_docx(input_docx_path, output_docx_path)
+if __name__ == '__main__':
+    # Example usage
+    input_docx_path = "sample.docx"  # Ensure this is in the current directory or provide a correct path
+    output_docx_path = "sample_anonymized.docx"
+    anonymize_docx(input_docx_path, output_docx_path)
 

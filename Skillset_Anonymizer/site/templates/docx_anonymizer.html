@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DOCX Anonymizer</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/static/css/style.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <div class="app-header">
+            <div class="d-flex justify-content-between align-items-center">
+                <h1>DOCX Anonymizer</h1>
+                <nav>
+                    <a href="/" class="btn btn-outline-secondary me-2">Home</a>
+                    <a href="/text_anonymizer" class="btn btn-outline-secondary me-2">Text Anonymizer</a>
+                    <a href="/pdf_anonymizer" class="btn btn-outline-secondary me-2">PDF Anonymizer</a>
+                    <a href="/image_anonymizer" class="btn btn-outline-secondary">Image Anonymizer</a>
+                </nav>
+            </div>
+        </div>
+
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="card feature-card">
+                    <div class="card-body">
+                        <h5 class="card-title">DOCX Document Anonymization</h5>
+                        <form action="/anonymize_docx" method="post" enctype="multipart/form-data">
+                            <div class="mb-4">
+                                <label for="docx" class="form-label">Select DOCX File</label>
+                                <input type="file" class="form-control" id="docx" name="docx" accept=".docx" required>
+                                <div class="form-text text-muted mt-2">
+                                    Upload a DOCX file to anonymize sensitive information within the document.
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-primary w-100">Anonymize Document</button>
+                        </form>
+                        {% if success_message %}
+                        <div class="alert alert-success mt-4">
+                            {{ success_message }}
+                        </div>
+                        {% endif %}
+                        {% if error_message %}
+                        <div class="alert alert-danger mt-4">
+                            {{ error_message }}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
